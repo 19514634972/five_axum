@@ -33,7 +33,7 @@ pub  fn create_routes() ->Router{
         .route("/shared-data-1",get(share_data_1))
         .route("/shared-data-2",get(share_data_2))
         .layer(Extension(db_data))
-        .route_layer()  //路由中间件
+        .route_layer()  //路由中间件使用
     share
 }
 
