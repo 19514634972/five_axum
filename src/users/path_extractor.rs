@@ -1,11 +1,10 @@
 use std::fmt::format;
 use axum::response::IntoResponse;
-use axum::extract::{Path, Query};
+use axum::extract::{Path, Query, Request};
 use axum::http::{header, HeaderMap};
-use axum::Router;
-use axum::routing::get;
+use axum::{Json, Router};
+use axum::routing::{get,post};
 use serde::{Deserialize, Serialize};
-use serde_json::Value as JsonValue;
 use std::string::String;
 
 pub fn create_routes() ->Router{
@@ -13,7 +12,8 @@ pub fn create_routes() ->Router{
         .route("/users/:user_id",get(get_user_id))
         .route("/list-products",get(list_products))
         .route("/list-header",get(list_header))
-        .route("/category/:cat_id/product/:pro_id",get(get_category));
+        .route("/category/:cat_id/product/:pro_id",get(get_category))
+        .route("/list-user/:user_id",post(list_users));
     get_user_id
 }
 
@@ -46,6 +46,12 @@ async fn list_products(Query((pagination)):Query<(Pagination)>)->String{
 
 }
 
+#[derive(Debug,Serialize,Deserialize)]
+struct RequestUser{
+    name:String,
+    age:i32,
+    email:String,
+}
 async fn list_header(hm:HeaderMap)->String{
   if let Some(value)=  hm.get("x-custom-header"){
       println!("x-custom-header value:{}",value.to_str().unwrap());
@@ -57,8 +63,13 @@ async fn list_header(hm:HeaderMap)->String{
         response.clone()
     }).collect()
 
+}
 
-
-
-
+//提取器3哥
+async fn list_users(
+    Path(user_id): Path<i32>,
+    Query(pagination): Query<Pagination>,
+    Json(user): Json<RequestUser>,
+) -> String {
+    format!("user id: {user_id}, user: {:?}", user)
 }
